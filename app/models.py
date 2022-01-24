@@ -1,4 +1,5 @@
 from datetime import datetime
+from hashlib import md5
 
 # User the UserMixin class from Flask-Login for the standard attributes
 # such as is_authenticated, is_active, etc.
@@ -26,6 +27,15 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def avatar(self, size):
+        """
+        Get "identicon" geometric avatar from Gravatar web service
+        using email address MD5 hash.
+        """
+        gravatar_url_templ = "https://www.gravatar.com/avatar/{digest}?d=identicon&s={size}"
+        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
+        return gravatar_url_templ.format(digest=digest, size=size)
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
